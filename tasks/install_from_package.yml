@@ -1,0 +1,24 @@
+---
+- name: Make sure apt can use TLS
+  apt:
+    name: apt-transport-https
+    state: present
+  when: rundeck_install_apt_transport_https
+
+- name: Ensure package is installed (RedHat).
+  package:
+    name:
+      - memcached
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Update apt cache (Debian).
+  apt: update_cache=yes cache_valid_time=86400
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure package is installed (Debian).
+  apt:
+    name:
+      - memcached
+    state: present
+  when: ansible_os_family == 'Debian'

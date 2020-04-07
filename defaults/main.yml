@@ -1,0 +1,55 @@
+---
+
+# WHether to install from source:
+memcached_install_from_source: false
+
+# Whether to install the apt https transport. If this is installed elsewhere in
+# your automation, disabling this saves a little time.
+memcached_install_apt_transport_https: true
+
+# Pinning the version prevents unexpected/accidental upgrades. Pinning only
+# works if a specific version is specified using the memcached_version variable.
+memcached_pin_version: "{{ memcached_version|length > 0 }}"
+
+# The version is blank by default. This means that whichever version apt chooses
+# by default is what will be installed. Set to a specific version as needed.
+# Shall be at least 1.4 or will fail for recent Debian systems
+memcached_version: ""
+
+# The tcp port memcached should listen on.
+memcached_port: 11211
+
+# The address memcached should bind on.
+memcached_host: 127.0.0.1
+
+#memcached_socket_file: ""
+#memcached_socket_perms: "0666"
+
+# The maximum connections memcached.
+memcached_max_connections: 1024
+
+# The cachesize.
+memcached_memory_cap: 64
+
+memcached_log_verbosity: ""
+memcached_logfile: /var/log/memcached.log
+
+
+memcached_options: ''
+memcached_fs_file_max: false
+memcached_net_ipv4_ip_local_port_range: false
+
+# The user memcached should run under.
+_memcached_user:
+  default: memcached
+  Debian: memcache
+
+memcached_user: "{{ _memcached_user[ansible_os_family] | default(_memcached_user['default']) }}"
+
+_memcached_configfile:
+  default: /etc/sysconfig/memcached
+  Alpine: /etc/conf.d/memcached
+  Debian: /etc/memcached.conf
+  RedHat: /etc/sysconfig/memcached
+
+memcached_configfile: "{{ _memcached_configfile[ansible_os_family] | default(_memcached_configfile['default']) }}"

@@ -1,0 +1,24 @@
+---
+- name: set system file descriptor limit
+  sysctl:
+    name: fs.file-max
+    value: "{{ memcached_fs_file_max }}"
+    reload: true
+    state: present
+  when: memcached_fs_file_max
+  tags:
+    - configuration
+    - memcached
+    - memcached-fs-file-max
+
+- name: set system ip port limits
+  sysctl:
+    name: net.ipv4.ip_local_port_range
+    value: "{{ memcached_net_ipv4_ip_local_port_range }}"
+    reload: true
+    state: present
+  when: memcached_net_ipv4_ip_local_port_range
+  tags:
+    - configuration
+    - memcached
+    - memcached-local-port-range

@@ -1,0 +1,33 @@
+---
+
+- name: Configure Sysctl if variables are set.
+  import_tasks: configure_sysctl.yml
+
+- name: Install from Package
+  tags:
+    - memcached-install
+  include_tasks: install_from_package.yml
+  when:
+    - not memcached_install_from_source | bool
+
+- name: Install from source
+  tags:
+    - memcached-install
+  import_tasks: install_from_source.yml
+  when: memcached_install_from_source | bool
+
+- name: Configure Memcached
+  import_tasks: configure.yml
+
+# Flush first so that if a restart is pending, we don't start and immediately
+# restart upon initial install.
+- name: Flush pending handlers
+  meta: flush_handlers
+
+- name: Enable Memcached service
+  tags:
+    - memcached-configure
+  service:
+    name: memcached
+    state: started
+    enabled: yes

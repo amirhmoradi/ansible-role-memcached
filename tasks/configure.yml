@@ -1,0 +1,45 @@
+---
+
+- name: update configuration file(s)
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - src: etc/default/memcached.j2
+      dest: /etc/default/memcached
+    - src: "{{ ansible_distribution }}-memcached.conf.j2"
+      dest: "{{ memcached_configfile }}"
+  notify: restart memcached
+  tags:
+    - configuration
+    - memcached
+    - memcached-configuration
+
+- include: configure_initd.yml
+  when: ansible_service_mgr != 'systemd'
+  tags:
+    - configuration
+    - memcached
+    - memcached-configure
+    - memcached-configure-initd
+
+- include: configure_systemd.yml
+  when: ansible_service_mgr == 'systemd'
+  tags:
+    - configuration
+    - memcached
+    - memcached-configure
+    - memcached-configure-systemd
+
+- name: start and enable service
+  service:
+    name: memcached
+    state: "{{ service_default_state | default('started') }}"
+    enabled: "{{ service_default_enabled | default(true) | bool }}"
+  tags:
+    - configuration
+    - memcached
+    - memcached-start-enable-service

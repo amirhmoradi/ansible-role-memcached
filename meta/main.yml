@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  role_name: memcached
+  author: Amir Moradi
+  description: Install and configure Memcached
+  license: BSD
+  min_ansible_version: 2.5
+  platforms:
+    - name: Ubuntu
+      versions:
+        - xenial
+    - name: Debian
+      versions:
+        - stretch
+
+  galaxy_tags:
+    - cache
+    - memcached
+
+dependencies: []

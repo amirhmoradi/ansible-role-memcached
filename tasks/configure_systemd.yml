@@ -1,0 +1,19 @@
+---
+- name: configure | systemd | update script
+  template:
+    src: etc/systemd/system/memcached.j2
+    dest: /etc/systemd/system/memcached.service
+    owner: root
+    group: root
+    mode: 0644
+  register: _update_systemd_script
+  notify: restart memcached
+  tags:
+    - memcached-service-systemd-update
+
+- name: service | systemd | reload
+  systemd:
+    daemon_reload: true
+  when: _update_systemd_script is changed
+  tags:
+    - keepalived-service-systemd-reload

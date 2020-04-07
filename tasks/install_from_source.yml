@@ -1,0 +1,53 @@
+---
+
+- name: Ensure dependencies for building from source are installed (RedHat).
+  package:
+    name:
+      - libevent-devel
+      - gcc
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Update apt cache (Debian).
+  apt: update_cache=yes cache_valid_time=86400
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure dependencies for building from source are installed (Debian).
+  apt:
+    name:
+      - libevent-dev
+      - build-essential
+      - make
+      - gcc
+    state: present
+  when: ansible_os_family == 'Debian'
+
+# - name: Download source file.
+#   get_url:
+#     url: https://memcached.org/latest
+#     dest: /tmp/memcached.latest.tar.gz
+
+- name: Download source file.
+  unarchive:
+    src: https://memcached.org/latest
+    dest: /usr/shared/memcached
+    remote_src: yes
+
+- name: Install from source
+  shell: |
+    set -o pipefail
+    "cd /tmp/memcached-latest && ./configure --prefix=/usr/bin/memcached && make && make test && sudo make install"
+  become: true
+  register: memcached_installed
+
+- name: configure | systemd | add wrapper
+  template:
+    src: usr/share/memcached/scripts/systemd-memcached-wrapper
+    dest: /usr/share/memcached/scripts/systemd-memcached-wrapper
+    owner: root
+    group: root
+    mode: 0755
+  register: _update_systemd_wrapper
+  notify: restart memcached
+  tags:
+    - memcached-service-systemd-update
